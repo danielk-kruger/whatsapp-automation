@@ -1,18 +1,10 @@
 [
 	{
-		"img": "anuncios.jpeg",
-		"caption": "Aproveite as Ferias!!!!",
-		"msg_prinicpal": "Esta é uma mensagem de texto automática enviada para vários contatos de uma só vez para fins de teste"
-	},
-	{
-		"img": "anuncios2.jpeg",
-		"caption": "Aproveite as Ferias!!!!",
-		"msg_prinicpal": "Esta é uma mensagem de texto automática enviada para vários contatos de uma só vez para fins de teste"
-	},
-	{
-		"img": "anuncios3.jpeg",
-		"caption": "Aproveite as Ferias!!!!",
-		"msg_prinicpal": "Esta é uma mensagem de texto automática enviada para vários contatos de uma só vez para fins de teste"
+		"Teste": {
+			"img": "anuncios.jpeg",
+			"caption": "Aproveite as Ferias!!!!",
+			"msg_prinicpal": "Esta é uma mensagem de texto automática enviada para vários contatos de uma só vez para fins de teste"
+		}
 	}
 ]
 
