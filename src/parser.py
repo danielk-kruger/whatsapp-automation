@@ -1,108 +1,105 @@
-import json
+import os
+import os.path
+
 import pandas as pd
-import os, os.path
-
-class Parser
-	file_paths = []
-	dir_path = "data"
-
-	def __init__(self):
-		self.init_datasets()
+from utils import flatten
 
 
-	# Here we get all our datasets and store into an array of dictionaries
-	# This way we can distinguish what is a file and what isn`t.
-	
-	# base data structure.
-	# file_paths -> [
-	# 	'comms.json',
-	# 	'settings.json',
-	# 	{ 'contacts': { 'test_contacts.csv': 'data/contacts/test_contacts.csv' }}
-	#	... etc
-	# ]
-	def init_datasets(self):
-		for entry in os.listdir(dir_path):				
-			if os.path.isdir(entry):
-				entries = [self.filter_entries(entry)]
-				self.set_filepath({ 
-					self.get_name(entry): [{ 
-						self.get_name(deep_entry): deep_entry 
-					} for deep_entry in entries]
-				})
-			
-			self.set_filepath(os.path.join(dir_path, entry))
+class Parser:
+    file_paths = {}
+    selected_file = ''
 
-	def set_filepath(self, file):
-		print(f"Found file: {self.get_name(file)}")
-		self.file_paths.append(file)
+    def __init__(self, dir_path=(os.path.join(os.getcwd(), 'src/data'))):
+        self.dir_path = dir_path
+        print(self.dir_path)
+        self.init_datasets()
 
-	def filter_entries(self, entry):
-		return [os.path.join(self.dir_path, file) for file in entry if self.is_dataset(file)]
+    def init_datasets(self):
+        for entry in os.listdir(self.dir_path):
+            entry_path = os.path.join(self.dir_path, entry)
 
-	def get_filepaths(self):
-		return self.file_paths
+            if os.path.isdir(entry_path):
+                self.file_paths[self.get_name(entry)] = flatten([{
+                    self.get_name(deep_entry).split('.csv')[0]:
+                        os.path.join(entry_path, deep_entry)
+                } for deep_entry in os.listdir(entry_path)])
 
-	def get_name(self, file_path):
-		return os.path.basename(file_path)
+            # case its a basic file
+            self.set_filepath(entry_path)
 
-	def is_dataset(self, data_file):
-		return entry.endswith('.csv') or entry.endswith('.json')
+    @staticmethod
+    def parse_contacts(self, file=None):
+        if not file or os.path.exists(file):
+            file = self.get_selected_file()
 
+        df = pd.read_csv(file, delimiter=";", encoding='latin1')
+        data = []
 
-class Contacts(Parser):
-	# list = []
+        for i in df.index:
+            data.append({
+                'Nome': df['Nome'][i],
+                'Sexo': df['Sexo'][i],
+                'Cell': df['Telefone'][i],
+            })
 
-	def __init__(self, contact, list=[]):
-		# self.list = []
-		self.list = self.get_contactlists()
-		self.contact = contact if contact is not '' else self.list[0]
+        return data
 
+    def set_filepath(self, file):
+        if os.path.isdir(file):
+            print(f"Found directory: {self.get_name(file)}")
+            return
+        else:
+            print(f"Found file: {self.get_name(file)}")
 
-	def get_contactlists(self):
-		for item in self.get_filepaths():
-			contacts = item['contacts'].keys()
-			print(contacts)
+        self.file_paths[self.get_name(file).split('.json')[0]] = file
 
-	# Return the file name if it is inside 
-	def contact_selecto(self, file_name):
-		names = [self.get_name(file) for file in self.list]
-		if file_name in names:
-			return file_name
+    def filter_entries(self, entry):
+        return [file for file in os.listdir(entry) if self.is_dataset(file)]
 
-	def parse_contacts(self):
-		df = pd.read_csv(file, delimiter=";", encoding='latin1')
-		data = []
+    def get_filepaths(self):
+        return self.file_paths
 
-		for i in df.index:
-			data.append({
-				'Nome': df['Nome'][i],
-				'Sexo': df['Sexo'][i],
-				'Cell': df['Telefone'][i],
-			})
+    def get_contactlist(self):
+        user_list = self.get_filepaths().get('contacts')
+        print([key for key in user_list.keys()])
 
-		return data
+    def select_contact(self, key):
+        file = self.file_paths.get('contacts').get(key)
+        print(file)
+        self.set_selected_file(file)
 
-	def set_list(self, new_list):
-		self.list = new_list
+    @staticmethod
+    def get_name(file_path):
+        return os.path.basename(file_path)
 
-class Comms(Parser):
-	options = []
+    @staticmethod
+    def is_dataset(data_file):
+        return data_file.endswith('.csv') or data_file.endswith('.json')
 
-	def get_comms(self):
-		options = []
-		comms = ""
+    def set_selected_file(self, path):
+        self.selected_file = path
 
-		try:
-			with open(comms_file, 'r') as json_file:
-				comms = json.load(json_file)
+    def get_selected_file(self):
+        return self.selected_file
 
-			for com_option in comms[0]:
-				options.append(com_option)
-			
-		except FileNotFoundError:
-			print("File not found")
-
-	def get_comm(key):
-		for option in self.options:
-			if (option.keys()[key] == key):
-				return option.values()
+# class Comms(Parser):
+#     options = []
+#
+#     def get_comms(self):
+#         options = []
+#         comms = ""
+#
+#         try:
+#             with open(comms_file, 'r') as json_file:
+#                 comms = json.load(json_file)
+#
+#             for com_option in comms[0]:
+#                 options.append(com_option)
+#
+#         except FileNotFoundError:
+#             print("File not found")
+#
+#     def get_comm(key):
+#         for option in self.options:
+#             if (option.keys()[key] == key):
+#                 return option.values()

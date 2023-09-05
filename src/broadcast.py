@@ -1,10 +1,9 @@
 from drivers import WhatsApp
-from parser import parse_data
-
-
+import pandas as pd
 
 def automate_messages():
 	messenger = WhatsApp()
+
 
 	for user in data:
 		messenger.find_user(str(user['Cell']))
